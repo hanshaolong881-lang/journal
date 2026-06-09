@@ -87,9 +87,9 @@ for f in sorted(glob.glob("entries/*.md"), reverse=True):
 with open("template.html", encoding="utf-8") as f:
     html = f.read()
 
-html = html.replace("{{PASSWORD_HASH}}", password_hash)
-html = html.replace("{{ENTRIES}}", json.dumps(entries, ensure_ascii=False))
-html = html.replace("{{ENCRYPTED_TOKEN}}", encrypted_token)
+html = html.replace("HASH_PLACEHOLD...", '"' + password_hash + '"')
+html = html.replace("ENTRIES_PLACEHOLDER", json.dumps(entries, ensure_ascii=False))
+html = html.replace("TOKEN_PLACEHO...", '"' + encrypted_token + '"')
 html = html.replace("{{REPO}}", REPO)
 
 os.makedirs("docs", exist_ok=True)
