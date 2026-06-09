@@ -6,48 +6,57 @@
 <title>日省</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#08080a;color:#a8a4b0;font-family:Georgia,"Noto Serif SC",serif;-webkit-font-smoothing:antialiased}
-#gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:20px;background:radial-gradient(ellipse at 50% 30%,rgba(80,60,200,0.06),transparent 70%),#08080a}
-#gate h2{font-size:56px;font-weight:400;color:#b8a0e0;letter-spacing:12px}
-#gate .sub{font-size:14px;color:#7a6a98;letter-spacing:6px;margin-bottom:24px}
-#gate input{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#c8c4c0;padding:14px 24px;font-size:15px;border-radius:12px;width:260px;outline:none;text-align:center}
-#gate input:focus{border-color:rgba(180,160,220,0.3);background:rgba(255,255,255,0.05)}
-#gate button{background:rgba(255,255,255,0.06);color:#d0cce0;border:1px solid rgba(255,255,255,0.08);padding:12px 32px;font-size:14px;border-radius:12px;cursor:pointer;font-family:inherit;letter-spacing:2px}
-#gate button:hover{background:rgba(255,255,255,0.1)}
-#gate .err{color:#c06060;font-size:13px;display:none}
-#app{display:none;max-width:720px;margin:0 auto;padding:80px 28px 160px}
-header{padding-bottom:48px;margin-bottom:64px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:flex-end}
-h1{font-size:32px;font-weight:400;color:#e8e4e0;letter-spacing:8px}
-header p{color:#5a5568;font-size:13px;letter-spacing:3px}
-#newBtn{background:rgba(255,255,255,0.04);color:#a098b0;border:1px solid rgba(255,255,255,0.06);padding:8px 20px;font-size:12px;border-radius:10px;cursor:pointer;font-family:inherit;letter-spacing:1px;transition:all .3s}
-#newBtn:hover{background:rgba(255,255,255,0.08);border-color:rgba(180,160,220,0.25);color:#d0cce0}
-.entries{display:flex;flex-direction:column;gap:56px}
-.entry-date{font-size:11px;color:#3d3850;letter-spacing:3px;margin-bottom:20px}
-.entry-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:28px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-.entry-content{font-size:16px;line-height:2.1;color:#a8a4b0}
-.entry-content p{margin-bottom:20px}
-.entry-content h3{color:#d0cce0;font-size:19px;font-weight:400;margin-bottom:12px}
-footer{margin-top:120px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.03);color:#3d3850;font-size:11px;letter-spacing:2px}
+body{background:#0a0a0a;color:#999;font-family:Georgia,"Noto Serif SC",serif;-webkit-font-smoothing:antialiased}
+
+#gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:24px;background:linear-gradient(180deg,#0a0a0a 0%,#0d0d0d 50%,#0a0a0a 100%)}
+#gate h2{font-size:48px;font-weight:400;color:#c9a84c;letter-spacing:16px;text-transform:uppercase}
+#gate .sub{font-size:12px;color:#554820;letter-spacing:8px;margin-bottom:32px}
+#gate input{background:#111;border:1px solid #222;color:#aaa;padding:16px 28px;font-size:14px;border-radius:4px;width:280px;outline:none;text-align:center;transition:border-color .3s}
+#gate input:focus{border-color:#c9a84c}
+#gate button{background:transparent;color:#c9a84c;border:1px solid #c9a84c;padding:14px 48px;font-size:13px;letter-spacing:4px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all .3s}
+#gate button:hover{background:#c9a84c;color:#0a0a0a}
+#gate .err{color:#a04040;font-size:12px;display:none;letter-spacing:2px}
+
+#app{display:none;max-width:680px;margin:0 auto;padding:100px 32px 160px}
+header{padding-bottom:40px;margin-bottom:80px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:flex-end}
+h1{font-size:28px;font-weight:400;color:#c9a84c;letter-spacing:12px}
+header p{color:#443;font-size:11px;letter-spacing:4px;text-transform:uppercase}
+#newBtn{background:transparent;color:#665522;border:1px solid #222;padding:8px 22px;font-size:11px;letter-spacing:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all .3s}
+#newBtn:hover{color:#c9a84c;border-color:#c9a84c}
+
+.entries{display:flex;flex-direction:column;gap:64px}
+
+.entry{position:relative}
+.entry::before{content:"";position:absolute;left:-24px;top:4px;width:1px;height:20px;background:#c9a84c;opacity:.3}
+.entry-date{font-size:10px;color:#333;letter-spacing:4px;margin-bottom:28px;font-family:monospace}
+.entry-card{background:#0d0d0d;border:1px solid #161616;padding:36px;position:relative}
+.entry-card::after{content:"";position:absolute;top:0;right:0;width:40px;height:1px;background:#c9a84c;opacity:.3}
+.entry-content{font-size:15px;line-height:2.2;color:#888}
+.entry-content p{margin-bottom:24px}
+.entry-content p:last-child{margin-bottom:0}
+.entry-content h3{color:#c9a84c;font-size:17px;font-weight:400;margin-bottom:16px;letter-spacing:2px}
+.entry-content h4{color:#998;font-size:14px;font-weight:400;margin-bottom:12px}
+
+footer{margin-top:120px;padding-top:40px;border-top:1px solid #1a1a1a;color:#333;font-size:10px;letter-spacing:3px;text-align:right}
 </style>
 </head>
 <body>
 
 <div id="gate">
   <h2>日省</h2>
-  <div class="sub">TONG SHAPAI</div>
-  <input type="password" id="pw" placeholder="密码" autofocus>
-  <button onclick="unlock()">进入</button>
-  <div class="err" id="err">密码错误</div>
+  <div class="sub">DAILY REFLECTION</div>
+  <input type="password" id="pw" placeholder="PASSWORD" autofocus>
+  <button onclick="unlock()">ENTER</button>
+  <div class="err" id="err">ACCESS DENIED</div>
 </div>
 
 <div id="app">
   <header>
-    <div><h1>日省</h1><p>每日感悟</p></div>
-    <button id="newBtn" onclick="startNew()">+ 写日记</button>
+    <div><h1>日省</h1><p>Daily Reflection</p></div>
+    <button id="newBtn" onclick="startNew()">+ Write</button>
   </header>
-
   <div class="entries" id="entries"></div>
-  <footer>github.com/hanshaolong881-lang/journal</footer>
+  <footer>GITHUB.COM/HANSHAOLONG881-LANG/JOURNAL</footer>
 </div>
 
 <script>
@@ -76,10 +85,13 @@ function render(){
   var c = document.getElementById("entries");
   ENTRIES.forEach(function(e){
     var d = document.createElement("div");
+    d.className = "entry";
     d.innerHTML = '<div class="entry-date">'+e.date+'</div><div class="entry-card"><div class="entry-content">'+e.content+'</div></div>';
     c.appendChild(d);
   });
 }
+
+function startNew(){ alert("Coming soon"); }
 
 document.getElementById("pw").addEventListener("keydown", function(e){
   if(e.key === "Enter") unlock();
