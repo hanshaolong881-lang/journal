@@ -28,8 +28,11 @@ header p{color:#443;font-size:11px;letter-spacing:4px;text-transform:uppercase}
 
 .entry{position:relative}
 .entry::before{content:"";position:absolute;left:-24px;top:4px;width:1px;height:20px;background:#c9a84c;opacity:.3}
-.entry-date{font-size:10px;color:#333;letter-spacing:4px;margin-bottom:28px;font-family:monospace}
-.entry-card{background:#0d0d0d;border:1px solid #161616;padding:36px;position:relative}
+.entry-date{font-size:10px;color:#554420;letter-spacing:4px;margin-bottom:0;font-family:monospace;cursor:pointer;transition:color .3s;user-select:none;display:flex;align-items:center;gap:10px}
+.entry-date:hover{color:#c9a84c}
+.entry-date .arrow{display:inline-block;transition:transform .3s;font-size:9px;color:#c9a84c;opacity:.5}
+.entry-date.open .arrow{transform:rotate(90deg)}
+.entry-card{background:#0d0d0d;border:1px solid #161616;padding:36px;position:relative;display:none;margin-top:24px}
 .entry-card::after{content:"";position:absolute;top:0;right:0;width:40px;height:1px;background:#c9a84c;opacity:.3}
 .entry-content{font-size:15px;line-height:2.2;color:#888}
 .entry-content p{margin-bottom:24px}
@@ -86,9 +89,15 @@ function render(){
   ENTRIES.forEach(function(e){
     var d = document.createElement("div");
     d.className = "entry";
-    d.innerHTML = '<div class="entry-date">'+e.date+'</div><div class="entry-card"><div class="entry-content">'+e.content+'</div></div>';
+    d.innerHTML = '<div class="entry-date" onclick="toggleEntry(this)"><span class="arrow">&#9654;</span> '+e.date+'</div><div class="entry-card"><div class="entry-content">'+e.content+'</div></div>';
     c.appendChild(d);
   });
+}
+
+function toggleEntry(el){
+  el.classList.toggle("open");
+  var card = el.nextElementSibling;
+  card.style.display = card.style.display === "block" ? "none" : "block";
 }
 
 function startNew(){ alert("Coming soon"); }
