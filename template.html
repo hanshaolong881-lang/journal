@@ -1,32 +1,57 @@
 <!DOCTYPE html>
-<html>
-<head><meta charset="UTF-8"><title>Gate Test</title>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日省</title>
 <style>
-body{background:#08080a;font-family:sans-serif}
-#gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:16px;color:#c8c4c0}
-#gate input{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#c8c4c0;padding:12px 20px;font-size:15px;border-radius:10px;width:220px;outline:none;text-align:center}
-#gate button{background:rgba(255,255,255,0.06);color:#d0cce0;border:1px solid rgba(255,255,255,0.08);padding:10px 28px;font-size:14px;border-radius:10px;cursor:pointer}
-#gate .err{color:#c06060;display:none;font-size:13px}
-#app{display:none;color:#c8c4c0;padding:60px;text-align:center}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#08080a;color:#a8a4b0;font-family:Georgia,"Noto Serif SC",serif;-webkit-font-smoothing:antialiased}
+#gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:20px;background:radial-gradient(ellipse at 50% 30%,rgba(80,60,200,0.06),transparent 70%),#08080a}
+#gate h2{font-size:56px;font-weight:400;color:#e8e4e0;letter-spacing:12px}
+#gate .sub{font-size:14px;color:#5a5568;letter-spacing:6px;margin-bottom:24px}
+#gate input{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#c8c4c0;padding:14px 24px;font-size:15px;border-radius:12px;width:260px;outline:none;text-align:center}
+#gate input:focus{border-color:rgba(180,160,220,0.3);background:rgba(255,255,255,0.05)}
+#gate button{background:rgba(255,255,255,0.06);color:#d0cce0;border:1px solid rgba(255,255,255,0.08);padding:12px 32px;font-size:14px;border-radius:12px;cursor:pointer;font-family:inherit;letter-spacing:2px}
+#gate button:hover{background:rgba(255,255,255,0.1)}
+#gate .err{color:#c06060;font-size:13px;display:none}
+#app{display:none;max-width:720px;margin:0 auto;padding:80px 28px 160px}
+header{padding-bottom:48px;margin-bottom:64px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:flex-end}
+h1{font-size:32px;font-weight:400;color:#e8e4e0;letter-spacing:8px}
+header p{color:#5a5568;font-size:13px;letter-spacing:3px}
+#newBtn{background:rgba(255,255,255,0.04);color:#a098b0;border:1px solid rgba(255,255,255,0.06);padding:8px 20px;font-size:12px;border-radius:10px;cursor:pointer;font-family:inherit;letter-spacing:1px;transition:all .3s}
+#newBtn:hover{background:rgba(255,255,255,0.08);border-color:rgba(180,160,220,0.25);color:#d0cce0}
+.entries{display:flex;flex-direction:column;gap:56px}
+.entry-date{font-size:11px;color:#3d3850;letter-spacing:3px;margin-bottom:20px}
+.entry-content{font-size:16px;line-height:2.1;color:#a8a4b0}
+.entry-content p{margin-bottom:20px}
+.entry-content h3{color:#d0cce0;font-size:19px;font-weight:400;margin-bottom:12px}
+footer{margin-top:120px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.03);color:#3d3850;font-size:11px;letter-spacing:2px}
 </style>
 </head>
 <body>
 
 <div id="gate">
   <h2>日省</h2>
+  <div class="sub">TONG SHAPAI</div>
   <input type="password" id="pw" placeholder="密码" autofocus>
   <button onclick="unlock()">进入</button>
   <div class="err" id="err">密码错误</div>
 </div>
 
 <div id="app">
-  <h1>欢迎!</h1>
-  <p>日记内容会显示在这里</p>
+  <header>
+    <div><h1>日省</h1><p>每日感悟</p></div>
+    <button id="newBtn" onclick="startNew()">+ 写日记</button>
+  </header>
+
+  <div class="entries" id="entries"></div>
+  <footer>github.com/hanshaolong881-lang/journal</footer>
 </div>
 
 <script>
 var HASH = "HASH_PLACEHOLD...";
-var ENTRIES = [{"date": "2026-06-05", "content": "<p>测试日记内容</p>"}];
+var ENTRIES = ENTRIES_PLACEHOLDER;
 
 async function sha256(t){
   var b = new TextEncoder().encode(t);
@@ -43,12 +68,14 @@ async function unlock(){
   }
   document.getElementById("gate").style.display = "none";
   document.getElementById("app").style.display = "block";
+  render();
+}
 
-  // render entries
-  var c = document.getElementById("app");
+function render(){
+  var c = document.getElementById("entries");
   ENTRIES.forEach(function(e){
     var d = document.createElement("div");
-    d.innerHTML = "<h3>" + e.date + "</h3><p>" + e.content + "</p>";
+    d.innerHTML = '<div class="entry-date">'+e.date+'</div><div class="entry-content">'+e.content+'</div>';
     c.appendChild(d);
   });
 }
