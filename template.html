@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>通杀牌 · 日省</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0d1117;color:#c9d1d9;font-family:"Noto Serif SC","Source Han Serif SC",Georgia,serif;min-height:100vh}
+.container{max-width:680px;margin:0 auto;padding:60px 24px 120px}
+header{border-bottom:1px solid #21262d;padding-bottom:32px;margin-bottom:48px}
+h1{font-size:28px;font-weight:400;color:#e6edf3;letter-spacing:2px}
+header p{color:#8b949e;font-size:14px;margin-top:8px}
+.entries{display:flex;flex-direction:column;gap:40px}
+.entry-date{font-size:12px;color:#484f58;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase}
+.entry-content{font-size:16px;line-height:1.9;color:#c9d1d9}
+.entry-content p{margin-bottom:16px}
+.entry-content p:last-child{margin-bottom:0}
+footer{margin-top:80px;padding-top:24px;border-top:1px solid #21262d;color:#484f58;font-size:12px}
+
+/* Password Gate */
+#gate{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
+#gate h2{font-size:20px;font-weight:400;color:#e6edf3}
+#gate input{background:#161b22;border:1px solid #30363d;color:#c9d1d9;padding:10px 16px;font-size:15px;border-radius:6px;width:240px;outline:none;text-align:center}
+#gate input:focus{border-color:#58a6ff}
+#gate button{background:#238636;color:#fff;border:none;padding:10px 24px;font-size:14px;border-radius:6px;cursor:pointer}
+#gate button:hover{background:#2ea043}
+#gate .error{color:#f85149;font-size:13px;display:none}
+#app{display:none}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h2>🔒</h2>
+  <input type="password" id="pw" placeholder="输入密码" autofocus>
+  <button onclick="unlock()">进入</button>
+  <div class="error" id="error">密码错误</div>
+</div>
+
+<div id="app">
+  <div class="container">
+    <header>
+      <h1>日省</h1>
+      <p>每日感悟 · 通杀牌</p>
+    </header>
+    <div class="entries" id="entries"></div>
+    <footer>github.com/hanshaolong881-lang · {{YEAR}}</footer>
+  </div>
+</div>
+
+<script>
+const PASSWORD_HASH = "{{PASSWORD_HASH}}";
+const ENTRIES = {{ENTRIES}};
+
+async function sha256(text) {
+  const buf = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function unlock() {
+  const pw = document.getElementById('pw').value;
+  const hash = await sha256(pw);
+  if (hash === PASSWORD_HASH) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    render();
+  } else {
+    document.getElementById('error').style.display = 'block';
+  }
+}
+
+document.getElementById('pw').addEventListener('keydown', e => {
+  if (e.key === 'Enter') unlock();
+});
+
+function render() {
+  const container = document.getElementById('entries');
+  ENTRIES.forEach(entry => {
+    const div = document.createElement('div');
+    div.className = 'entry';
+    div.innerHTML = `
+      <div class="entry-date">${entry.date}</div>
+      <div class="entry-content">${entry.content}</div>
+    `;
+    container.appendChild(div);
+  });
+  document.querySelector('footer').innerHTML = document.querySelector('footer').innerHTML.replace('{{YEAR}}', new Date().getFullYear());
+}
+</script>
+</body>
+</html>
