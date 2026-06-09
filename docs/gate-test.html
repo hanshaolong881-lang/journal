@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Gate Test</title>
+<style>
+body{background:#08080a;font-family:sans-serif}
+#gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:16px;color:#c8c4c0}
+#gate input{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);color:#c8c4c0;padding:12px 20px;font-size:15px;border-radius:10px;width:220px;outline:none;text-align:center}
+#gate button{background:rgba(255,255,255,0.06);color:#d0cce0;border:1px solid rgba(255,255,255,0.08);padding:10px 28px;font-size:14px;border-radius:10px;cursor:pointer}
+#gate .err{color:#c06060;display:none;font-size:13px}
+#app{display:none;color:#c8c4c0;padding:60px;text-align:center}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h2>日省</h2>
+  <input type="password" id="pw" placeholder="密码" autofocus>
+  <button onclick="unlock()">进入</button>
+  <div class="err" id="err">密码错误</div>
+</div>
+
+<div id="app">
+  <h1>欢迎!</h1>
+  <p>日记内容会显示在这里</p>
+</div>
+
+<script>
+var HASH = "9b0d0a5be5681bdd2cc700ea65008fe2b8011c9fc41e81606706058fff0197d5";
+var ENTRIES = [{"date": "2026-06-05", "content": "<p>测试日记内容</p>"}];
+
+async function sha256(t){
+  var b = new TextEncoder().encode(t);
+  var h = await crypto.subtle.digest("SHA-256", b);
+  return Array.from(new Uint8Array(h)).map(function(x){return x.toString(16).padStart(2,"0")}).join("");
+}
+
+async function unlock(){
+  var pw = document.getElementById("pw").value;
+  var h = await sha256(pw);
+  if(h !== HASH){
+    document.getElementById("err").style.display = "block";
+    return;
+  }
+  document.getElementById("gate").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  // render entries
+  var c = document.getElementById("app");
+  ENTRIES.forEach(function(e){
+    var d = document.createElement("div");
+    d.innerHTML = "<h3>" + e.date + "</h3><p>" + e.content + "</p>";
+    c.appendChild(d);
+  });
+}
+
+document.getElementById("pw").addEventListener("keydown", function(e){
+  if(e.key === "Enter") unlock();
+});
+</script>
+</body>
+</html>
