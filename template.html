@@ -51,6 +51,22 @@ header p{color:#443;font-size:11px;letter-spacing:4px;text-transform:uppercase}
 .entry-content h4{color:#998;font-size:14px;font-weight:400;margin-bottom:12px}
 
 footer{margin-top:120px;padding-top:40px;border-top:1px solid #1a1a1a;color:#333;font-size:10px;letter-spacing:3px;text-align:right}
+
+#editor{display:none;margin-bottom:48px}
+.ed-card{background:#0d0d0d;border:1px solid #161616;padding:28px}
+.ed-card input{background:#111;border:1px solid #222;color:#aaa;padding:10px 16px;font-size:12px;width:180px;outline:none;font-family:inherit;transition:border-color .3s}
+.ed-card input:focus{border-color:#c9a84c}
+.ed-card textarea{width:100%;min-height:200px;background:#111;border:1px solid #222;color:#999;padding:16px;font-size:14px;margin:12px 0;outline:none;resize:vertical;line-height:2;font-family:inherit}
+.ed-card textarea:focus{border-color:#c9a84c}
+.ed-btns{display:flex;gap:10px}
+.ed-btns button{padding:10px 28px;font-size:12px;letter-spacing:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all .3s}
+.btn-save{background:#c9a84c;color:#0a0a0a;border:1px solid #c9a84c}
+.btn-save:hover{background:#b8960f}
+.btn-cancel{background:transparent;color:#555;border:1px solid #222}
+.btn-cancel:hover{color:#888;border-color:#444}
+.ed-msg{font-size:11px;margin-top:12px;letter-spacing:1px}
+.ed-msg.ok{color:#6a8}
+.ed-msg.err{color:#a44}
 </style>
 </head>
 <body>
@@ -69,17 +85,51 @@ footer{margin-top:120px;padding-top:40px;border-top:1px solid #1a1a1a;color:#333
     <button id="newBtn" onclick="startNew()">+ Write</button>
   </header>
   <div class="entries" id="entries"></div>
+
+  <div id="editor">
+    <div class="ed-card">
+      <input type="text" id="edDate" placeholder="YYYY-MM-DD">
+      <textarea id="edContent" placeholder="write here..."></textarea>
+      <div class="ed-btns">
+        <button class="btn-save" onclick="saveEntry()">SAVE</button>
+        <button class="btn-cancel" onclick="cancelEdit()">CANCEL</button>
+      </div>
+      <div class="ed-msg" id="edMsg"></div>
+    </div>
+  </div>
+
   <footer>GITHUB.COM/HANSHAOLONG881-LANG/JOURNAL</footer>
 </div>
 
 <script>
 var HASH = "HASH_PLACEHOLD...";
+var TOKEN = "TOKEN_PLACEHO...";
+var REPO = "hanshaolong881-lang/journal";
 var ENTRIES = ENTRIES_PLACEHOLDER;
+var ghToken = null;
 
 async function sha256(t){
   var b = new TextEncoder().encode(t);
   var h = await crypto.subtle.digest("SHA-256", b);
   return Array.from(new Uint8Array(h)).map(function(x){return x.toString(16).padStart(2,"0")}).join("");
+}
+
+async function deriveKey(pw){
+  var h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("journal-key:"+pw));
+  return crypto.subtle.importKey("raw", h, {name:"AES-GCM",length:256}, false, ["decrypt"]);
+}
+
+async function decryptToken(pw){
+  if(!TOKEN) return null;
+  try{
+    var k = await deriveKey(pw);
+    var raw = atob(TOKEN);
+    var d = new Uint8Array(raw.length);
+    for(var i=0;i<raw.length;i++) d[i]=raw.charCodeAt(i);
+    var n=d.slice(0,12), ct=d.slice(12);
+    var pt = await crypto.subtle.decrypt({name:"AES-GCM",iv:n}, k, ct);
+    return new TextDecoder().decode(pt);
+  }catch(e){ return null; }
 }
 
 async function unlock(){
@@ -89,8 +139,10 @@ async function unlock(){
     document.getElementById("err").style.display = "block";
     return;
   }
+  ghToken = await decryptToken(pw);
   document.getElementById("gate").style.display = "none";
   document.getElementById("app").style.display = "block";
+  if(!ghToken) document.getElementById("newBtn").style.display = "none";
   render();
 }
 
@@ -110,7 +162,49 @@ function toggleEntry(el){
   card.style.display = card.style.display === "block" ? "none" : "block";
 }
 
-function startNew(){ alert("Coming soon"); }
+function startNew(){
+  if(!ghToken){ alert("Token not loaded"); return; }
+  document.getElementById("edDate").value = new Date().toISOString().slice(0,10);
+  document.getElementById("edContent").value = "";
+  document.getElementById("edMsg").textContent = "";
+  document.getElementById("edMsg").className = "ed-msg";
+  document.getElementById("editor").style.display = "block";
+  window.scrollTo(0,0);
+}
+
+function cancelEdit(){
+  document.getElementById("editor").style.display = "none";
+}
+
+async function saveEntry(){
+  var date = document.getElementById("edDate").value.trim();
+  var content = document.getElementById("edContent").value.trim();
+  var msg = document.getElementById("edMsg");
+  if(!date||!content){ msg.className="ed-msg err"; msg.textContent="Fill date and content"; return; }
+  msg.className="ed-msg"; msg.textContent="Saving...";
+  try{
+    var sha=null;
+    try{
+      var r=await fetch("https://api.github.com/repos/"+REPO+"/contents/entries/"+date+".md",{
+        headers:{"Authorization":"Bearer "+ghToken,Accept:"application/vnd.github+json"}
+      });
+      if(r.ok){ var d=await r.json(); sha=d.sha; }
+    }catch(e){}
+    var body={message:"journal "+date, content:btoa(unescape(encodeURIComponent(content))), branch:"master"};
+    if(sha) body.sha=sha;
+    var resp=await fetch("https://api.github.com/repos/"+REPO+"/contents/entries/"+date+".md",{
+      method:"PUT",
+      headers:{"Authorization":"Bearer "+ghToken,Accept:"application/vnd.github+json","Content-Type":"application/json"},
+      body:JSON.stringify(body)
+    });
+    if(resp.ok){
+      msg.className="ed-msg ok"; msg.textContent="Saved. Live in ~1 min.";
+      cancelEdit();
+    }else{
+      var err=await resp.json(); msg.className="ed-msg err"; msg.textContent="Error: "+(err.message||"unknown");
+    }
+  }catch(e){ msg.className="ed-msg err"; msg.textContent="Network error: "+e.message; }
+}
 
 document.getElementById("pw").addEventListener("keydown", function(e){
   if(e.key === "Enter") unlock();
