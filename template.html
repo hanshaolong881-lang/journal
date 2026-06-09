@@ -17,8 +17,18 @@ body{background:#0a0a0a;color:#999;font-family:Georgia,"Noto Serif SC",serif;-we
 #gate button:hover{background:#c9a84c;color:#0a0a0a}
 #gate .err{color:#a04040;font-size:12px;display:none;letter-spacing:2px}
 
-#app{display:none;max-width:680px;margin:0 auto;padding:100px 32px 160px}
-header{padding-bottom:40px;margin-bottom:80px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:flex-end}
+#app{display:none;max-width:680px;margin:0 auto;padding:80px 24px 160px}
+header{padding-bottom:32px;margin-bottom:48px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:flex-end}
+@media(max-width:640px){
+  #gate h2{font-size:36px;letter-spacing:8px}
+  #gate input{width:240px;padding:14px 20px}
+  #gate button{padding:12px 36px}
+  #app{padding:48px 20px 120px}
+  header{flex-direction:column;align-items:flex-start;gap:16px}
+  h1{font-size:24px}
+  .entry::before{left:-16px}
+  .entry-card{padding:24px}
+}
 h1{font-size:28px;font-weight:400;color:#c9a84c;letter-spacing:12px}
 header p{color:#443;font-size:11px;letter-spacing:4px;text-transform:uppercase}
 #newBtn{background:transparent;color:#665522;border:1px solid #222;padding:8px 22px;font-size:11px;letter-spacing:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all .3s}
