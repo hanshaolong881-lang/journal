@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Test</title></head>
+<body style="background:#111;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px">
+<h2>密码测试</h2>
+<input type="password" id="pw" placeholder="输入 tongshapai" style="padding:10px;font-size:16px;width:200px;text-align:center">
+<button onclick="test()" style="padding:10px 30px;font-size:14px;cursor:pointer">测试</button>
+<div id="result"></div>
+
+<script>
+async function sha256(t){
+  const b = new TextEncoder().encode(t);
+  const h = await crypto.subtle.digest('SHA-256', b);
+  return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function test(){
+  const pw = document.getElementById('pw').value;
+  const hash = await sha256(pw);
+  const expected = '9b0d0a5be5681bdd2cc700ea65008fe2b8011c9fc41e81606706058fff0197d5';
+  document.getElementById('result').innerHTML =
+    '输入: ' + pw + '<br>' +
+    '计算: ' + hash + '<br>' +
+    '期望: ' + expected + '<br>' +
+    '匹配: ' + (hash === expected ? 'YES!' : 'NO');
+}
+</script>
+</body>
+</html>
