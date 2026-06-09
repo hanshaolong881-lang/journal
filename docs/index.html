@@ -8,8 +8,8 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#08080a;color:#a8a4b0;font-family:Georgia,"Noto Serif SC",serif;-webkit-font-smoothing:antialiased}
 #gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:20px;background:radial-gradient(ellipse at 50% 30%,rgba(80,60,200,0.06),transparent 70%),#08080a}
-#gate h2{font-size:56px;font-weight:400;color:#e8e4e0;letter-spacing:12px}
-#gate .sub{font-size:14px;color:#5a5568;letter-spacing:6px;margin-bottom:24px}
+#gate h2{font-size:56px;font-weight:400;color:#b8a0e0;letter-spacing:12px}
+#gate .sub{font-size:14px;color:#7a6a98;letter-spacing:6px;margin-bottom:24px}
 #gate input{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#c8c4c0;padding:14px 24px;font-size:15px;border-radius:12px;width:260px;outline:none;text-align:center}
 #gate input:focus{border-color:rgba(180,160,220,0.3);background:rgba(255,255,255,0.05)}
 #gate button{background:rgba(255,255,255,0.06);color:#d0cce0;border:1px solid rgba(255,255,255,0.08);padding:12px 32px;font-size:14px;border-radius:12px;cursor:pointer;font-family:inherit;letter-spacing:2px}
@@ -23,6 +23,7 @@ header p{color:#5a5568;font-size:13px;letter-spacing:3px}
 #newBtn:hover{background:rgba(255,255,255,0.08);border-color:rgba(180,160,220,0.25);color:#d0cce0}
 .entries{display:flex;flex-direction:column;gap:56px}
 .entry-date{font-size:11px;color:#3d3850;letter-spacing:3px;margin-bottom:20px}
+.entry-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:16px;padding:28px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .entry-content{font-size:16px;line-height:2.1;color:#a8a4b0}
 .entry-content p{margin-bottom:20px}
 .entry-content h3{color:#d0cce0;font-size:19px;font-weight:400;margin-bottom:12px}
@@ -75,7 +76,7 @@ function render(){
   var c = document.getElementById("entries");
   ENTRIES.forEach(function(e){
     var d = document.createElement("div");
-    d.innerHTML = '<div class="entry-date">'+e.date+'</div><div class="entry-content">'+e.content+'</div>';
+    d.innerHTML = '<div class="entry-date">'+e.date+'</div><div class="entry-card"><div class="entry-content">'+e.content+'</div></div>';
     c.appendChild(d);
   });
 }
