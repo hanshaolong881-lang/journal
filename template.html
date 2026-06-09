@@ -1,55 +1,74 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>日省</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0d1117;color:#c9d1d9;font-family:"Noto Serif SC","Source Han Serif SC",Georgia,serif;min-height:100vh}
-.container{max-width:680px;margin:0 auto;padding:60px 24px 120px}
-header{border-bottom:1px solid #21262d;padding-bottom:32px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:flex-end}
-h1{font-size:28px;font-weight:400;color:#e6edf3;letter-spacing:2px}
-header p{color:#8b949e;font-size:14px;margin-top:4px}
-#newBtn{background:#238636;color:#fff;border:none;padding:8px 16px;font-size:13px;border-radius:6px;cursor:pointer}
-#newBtn:hover{background:#2ea043}
-#editor{display:none;margin-bottom:32px;background:#161b22;border:1px solid #30363d;border-radius:8px;padding:20px}
-#editor input[type=text]{background:#0d1117;border:1px solid #30363d;color:#e6edf3;padding:8px 12px;font-size:16px;border-radius:6px;width:200px;outline:none}
-#editor textarea{width:100%;min-height:200px;background:#0d1117;border:1px solid #30363d;color:#c9d1d9;padding:12px;font-size:15px;border-radius:6px;margin:12px 0;outline:none;resize:vertical;line-height:1.8;font-family:inherit}
-#editor textarea:focus,#editor input:focus{border-color:#58a6ff}
-.editor-btns{display:flex;gap:8px}
-.editor-btns button{padding:8px 18px;font-size:13px;border-radius:6px;cursor:pointer;border:none}
-.btn-save{background:#238636;color:#fff}
-.btn-save:hover{background:#2ea043}
-.btn-cancel{background:#21262d;color:#c9d1d9}
-.btn-cancel:hover{background:#30363d}
-.msg{font-size:13px;margin-top:8px}
-.msg.ok{color:#3fb950}
-.msg.err{color:#f85149}
-.entries{display:flex;flex-direction:column;gap:40px}
-.entry-date{font-size:12px;color:#484f58;letter-spacing:1px;margin-bottom:12px;text-transform:uppercase}
-.entry-content{font-size:16px;line-height:1.9;color:#c9d1d9}
-.entry-content p{margin-bottom:16px}
-.entry-content p:last-child{margin-bottom:0}
-.entry-content h3{color:#e6edf3;font-size:18px;margin-bottom:8px}
-.entry-content h4{color:#c9d1d9;font-size:15px;margin-bottom:8px}
-footer{margin-top:80px;padding-top:24px;border-top:1px solid #21262d;color:#484f58;font-size:12px}
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap');
 
-#gate{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px}
-#gate h2{font-size:20px;font-weight:400;color:#e6edf3}
-#gate input{background:#161b22;border:1px solid #30363d;color:#c9d1d9;padding:10px 16px;font-size:15px;border-radius:6px;width:240px;outline:none;text-align:center}
-#gate input:focus{border-color:#58a6ff}
-#gate button{background:#238636;color:#fff;border:none;padding:10px 24px;font-size:14px;border-radius:6px;cursor:pointer}
-#gate button:hover{background:#2ea043}
-#gate .error{color:#f85149;font-size:13px;display:none}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:#08080a}
+body{background:#08080a;color:#b0b0b8;font-family:"Noto Serif SC",Georgia,serif;-webkit-font-smoothing:antialiased}
+.container{max-width:720px;margin:0 auto;padding:80px 28px 160px}
+
+/* Gate */
+#gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:20px;background:radial-gradient(ellipse at 50% 30%,rgba(80,60,200,0.06),transparent 70%),#08080a}
+#gate h2{font-size:56px;font-weight:400;color:#e8e4e0;letter-spacing:12px;margin-bottom:8px;opacity:0;animation:fadeUp 1s ease forwards}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+#gate p.sub{font-size:14px;color:#5a5568;letter-spacing:6px;margin-bottom:32px;opacity:0;animation:fadeUp 1s 0.2s ease forwards}
+#gate input{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#c8c4c0;padding:14px 24px;font-size:15px;border-radius:12px;width:260px;outline:none;text-align:center;transition:all 0.4s cubic-bezier(0.32,0.72,0,1);opacity:0;animation:fadeUp 1s 0.4s ease forwards}
+#gate input:focus{border-color:rgba(180,160,220,0.3);background:rgba(255,255,255,0.05);box-shadow:0 0 0 4px rgba(140,120,200,0.06)}
+#gate button{background:rgba(255,255,255,0.06);color:#d0cce0;border:1px solid rgba(255,255,255,0.08);padding:12px 32px;font-size:14px;border-radius:12px;cursor:pointer;transition:all 0.4s cubic-bezier(0.32,0.72,0,1);opacity:0;animation:fadeUp 1s 0.6s ease forwards;font-family:inherit;letter-spacing:2px}
+#gate button:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15)}
+#gate .error{color:#c06060;font-size:13px;display:none;animation:fadeUp 0.3s ease}
 #app{display:none}
+
+/* Header */
+header{padding-bottom:48px;margin-bottom:64px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;justify-content:space-between;align-items:flex-end}
+h1{font-size:32px;font-weight:400;color:#e8e4e0;letter-spacing:8px}
+header p{color:#5a5568;font-size:13px;letter-spacing:3px}
+#newBtn{background:rgba(255,255,255,0.04);color:#a098b0;border:1px solid rgba(255,255,255,0.06);padding:8px 20px;font-size:12px;border-radius:10px;cursor:pointer;transition:all 0.4s cubic-bezier(0.32,0.72,0,1);font-family:inherit;letter-spacing:1px}
+#newBtn:hover{background:rgba(255,255,255,0.08);border-color:rgba(180,160,220,0.25);color:#d0cce0}
+
+/* Editor */
+#editor{display:none;margin-bottom:48px}
+.editor-shell{background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:2px}
+.editor-inner{background:rgba(0,0,0,0.3);border-radius:14px;padding:28px;border:1px solid rgba(255,255,255,0.03)}
+#edDate{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);color:#c8c4c0;padding:10px 16px;font-size:13px;border-radius:8px;width:180px;outline:none;font-family:inherit;transition:all 0.3s ease}
+#edDate:focus{border-color:rgba(180,160,220,0.25);background:rgba(255,255,255,0.04)}
+#edContent{width:100%;min-height:240px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);color:#b0b0b8;padding:20px;font-size:15px;border-radius:8px;margin:16px 0;outline:none;resize:vertical;line-height:2;font-family:inherit;transition:all 0.3s ease}
+#edContent:focus{border-color:rgba(180,160,220,0.25);background:rgba(255,255,255,0.04)}
+.editor-btns{display:flex;gap:10px}
+.editor-btns button{padding:10px 24px;font-size:13px;border-radius:10px;cursor:pointer;border:none;font-family:inherit;letter-spacing:1px;transition:all 0.3s cubic-bezier(0.32,0.72,0,1)}
+.btn-save{background:rgba(140,120,200,0.15);color:#c8bce0;border:1px solid rgba(140,120,200,0.2)}
+.btn-save:hover{background:rgba(140,120,200,0.25)}
+.btn-cancel{background:rgba(255,255,255,0.03);color:#6a6578;border:1px solid rgba(255,255,255,0.05)}
+.btn-cancel:hover{background:rgba(255,255,255,0.06);color:#8a8598}
+.msg{font-size:12px;margin-top:12px;letter-spacing:0.5px}
+.msg.ok{color:#60a080}
+.msg.err{color:#c06060}
+
+/* Entries */
+.entries{display:flex;flex-direction:column;gap:56px}
+.entry{opacity:0;transform:translateY(24px);transition:all 0.8s cubic-bezier(0.32,0.72,0,1)}
+.entry.visible{opacity:1;transform:translateY(0)}
+.entry-date{font-size:11px;color:#3d3850;letter-spacing:3px;margin-bottom:20px;font-feature-settings:"tnum"}
+.entry-content{font-size:16px;line-height:2.1;color:#a8a4b0}
+.entry-content p{margin-bottom:20px}
+.entry-content p:last-child{margin-bottom:0}
+.entry-content h3{color:#d0cce0;font-size:19px;font-weight:400;margin-bottom:12px;letter-spacing:1px}
+.entry-content h4{color:#b8b4c8;font-size:15px;font-weight:400;margin-bottom:10px}
+
+footer{margin-top:120px;padding-top:32px;border-top:1px solid rgba(255,255,255,0.03);color:#3d3850;font-size:11px;letter-spacing:2px}
 </style>
 </head>
 <body>
 
 <div id="gate">
   <h2>日省</h2>
-  <input type="password" id="pw" placeholder="输入密码" autofocus>
+  <p class="sub">TONG SHAPAI</p>
+  <input type="password" id="pw" placeholder="密码" autofocus>
   <button onclick="unlock()">进入</button>
   <div class="error" id="error">密码错误</div>
 </div>
@@ -57,21 +76,22 @@ footer{margin-top:80px;padding-top:24px;border-top:1px solid #21262d;color:#484f
 <div id="app">
   <div class="container">
     <header>
-      <div>
-        <h1>日省</h1>
-        <p>每日感悟 · 通杀牌</p>
-      </div>
+      <div><h1>日省</h1><p>每日感悟</p></div>
       <button id="newBtn" onclick="startNew()">+ 写日记</button>
     </header>
 
     <div id="editor">
-      <input type="text" id="edDate" placeholder="日期 YYYY-MM-DD">
-      <textarea id="edContent" placeholder="今天的感悟..."></textarea>
-      <div class="editor-btns">
-        <button class="btn-save" onclick="saveEntry()">保存并发布</button>
-        <button class="btn-cancel" onclick="cancelEdit()">取消</button>
+      <div class="editor-shell">
+        <div class="editor-inner">
+          <input type="text" id="edDate" placeholder="YYYY-MM-DD">
+          <textarea id="edContent" placeholder="今天的感悟..."></textarea>
+          <div class="editor-btns">
+            <button class="btn-save" onclick="saveEntry()">保存</button>
+            <button class="btn-cancel" onclick="cancelEdit()">取消</button>
+          </div>
+          <div class="msg" id="edMsg"></div>
+        </div>
       </div>
-      <div class="msg" id="edMsg"></div>
     </div>
 
     <div class="entries" id="entries"></div>
@@ -80,128 +100,25 @@ footer{margin-top:80px;padding-top:24px;border-top:1px solid #21262d;color:#484f
 </div>
 
 <script>
-const PASSWORD_HASH = "{{PASSWORD_HASH}}";
-const ENCRYPTED_TOKEN = "{{ENCRYPTED_TOKEN}}";
-const REPO = "{{REPO}}";
+const PASSWORD_HASH="{{PA...onst ENCRYPTED_TOKEN="{{EN...onst REPO = "{{REPO}}";
 const ENTRIES = {{ENTRIES}};
 let ghToken = null;
 
-async function sha256(text) {
-  const buf = new TextEncoder().encode(text);
-  const hash = await crypto.subtle.digest("SHA-256", buf);
-  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
+async function sha256(t){const b=new TextEncoder().encode(t);const h=await crypto.subtle.digest("SHA-256",b);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')}
+async function deriveKey(pw){const h=await crypto.subtle.digest("SHA-256",new TextEncoder().encode("journal-key:"+pw));return crypto.subtle.importKey("raw",h,{name:"AES-GCM",length:256},false,["decrypt"])}
+async function decryptToken(pw){if(!ENCRYPTED_TOKEN)return null;try{const k=await deriveKey(pw);const d=Uint8Array.from(atob(ENCRYPTED_TOKEN),c=>c.charCodeAt(0));const n=d.slice(0,12),ct=d.slice(12);const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:n},k,ct);return new TextDecoder().decode(pt)}catch(e){return null}}
 
-async function deriveKey(password) {
-  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("journal-key:" + password));
-  return crypto.subtle.importKey("raw", hash, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
-}
+async function unlock(){const pw=document.getElementById("pw").value;const h=await sha256(pw);if(h!==PASSWORD_HASH){document.getElementById("error").style.display="block";return}ghToken=await decryptToken(pw);document.getElementById("gate").style.display="none";document.getElementById("app").style.display="block";if(!ghToken)document.getElementById("newBtn").style.display="none";render();observeEntries()}
+document.getElementById("pw").addEventListener("keydown",e=>{if(e.key==="Enter")unlock()});
 
-async function decryptToken(password) {
-  if (!ENCRYPTED_TOKEN) return null;
-  try {
-    const key = await deriveKey(password);
-    const data = Uint8Array.from(atob(ENCRYPTED_TOKEN), c => c.charCodeAt(0));
-    const nonce = data.slice(0, 12);
-    const ct = data.slice(12);
-    const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: nonce }, key, ct);
-    return new TextDecoder().decode(pt);
-  } catch(e) {
-    return null;
-  }
-}
+function render(){const c=document.getElementById("entries");c.innerHTML="";ENTRIES.forEach((e,i)=>{const d=document.createElement("div");d.className="entry";d.style.transitionDelay=(i*0.08)+"s";d.innerHTML='<div class="entry-date">'+e.date+'</div><div class="entry-content">'+e.content+'</div>';c.appendChild(d)})}
 
-async function unlock() {
-  const pw = document.getElementById("pw").value;
-  const hash = await sha256(pw);
-  if (hash !== PASSWORD_HASH) {
-    document.getElementById("error").style.display = "block";
-    return;
-  }
-  // Decrypt token
-  ghToken = await decryptToken(pw);
-  document.getElementById("gate").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  if (!ghToken) document.getElementById("newBtn").style.display = "none";
-  render();
-}
+function observeEntries(){const o=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("visible");o.unobserve(e.target)}})},{threshold:0.1});document.querySelectorAll(".entry").forEach(e=>o.observe(e))}
 
-document.getElementById("pw").addEventListener("keydown", e => {
-  if (e.key === "Enter") unlock();
-});
+function startNew(){if(!ghToken){alert("GitHub Token 未配置");return}document.getElementById("edDate").value=new Date().toISOString().slice(0,10);document.getElementById("edContent").value="";document.getElementById("edMsg").textContent="";document.getElementById("editor").style.display="block";window.scrollTo(0,0)}
+function cancelEdit(){document.getElementById("editor").style.display="none"}
 
-function render() {
-  const container = document.getElementById("entries");
-  container.innerHTML = "";
-  ENTRIES.forEach(entry => {
-    const div = document.createElement("div");
-    div.className = "entry";
-    div.innerHTML = '<div class="entry-date">' + entry.date + '</div><div class="entry-content">' + entry.content + '</div>';
-    container.appendChild(div);
-  });
-}
-
-// --- Editor ---
-function startNew() {
-  if (!ghToken) { alert("GitHub Token 未配置"); return; }
-  const today = new Date().toISOString().slice(0, 10);
-  document.getElementById("edDate").value = today;
-  document.getElementById("edContent").value = "";
-  document.getElementById("edMsg").textContent = "";
-  document.getElementById("editor").style.display = "block";
-  window.scrollTo(0, 0);
-}
-
-function cancelEdit() {
-  document.getElementById("editor").style.display = "none";
-}
-
-async function saveEntry() {
-  const date = document.getElementById("edDate").value.trim();
-  const content = document.getElementById("edContent").value.trim();
-  const msg = document.getElementById("edMsg");
-  if (!date || !content) { msg.className = "msg err"; msg.textContent = "请填写日期和内容"; return; }
-
-  msg.className = "msg"; msg.textContent = "保存中...";
-
-  try {
-    // Get current file to get SHA (for update)
-    let sha = null;
-    try {
-      const getResp = await fetch("https://api.github.com/repos/" + REPO + "/contents/entries/" + date + ".md", {
-        headers: { Authorization: "Bearer " + ghToken, Accept: "application/vnd.github+json" }
-      });
-      if (getResp.ok) {
-        const getData = await getResp.json();
-        sha = getData.sha;
-      }
-    } catch(e) {}
-
-    const body = {
-      message: "日记 " + date,
-      content: btoa(unescape(encodeURIComponent(content))),
-      branch: "master"
-    };
-    if (sha) body.sha = sha;
-
-    const resp = await fetch("https://api.github.com/repos/" + REPO + "/contents/entries/" + date + ".md", {
-      method: "PUT",
-      headers: { Authorization: "Bearer " + ghToken, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-
-    if (resp.ok) {
-      msg.className = "msg ok"; msg.textContent = "已保存！GitHub Pages 正在部署...（约1分钟）";
-      cancelEdit();
-      // Rebuild locally via GitHub Actions or manual
-    } else {
-      const err = await resp.json();
-      msg.className = "msg err"; msg.textContent = "保存失败：" + (err.message || "未知错误");
-    }
-  } catch(e) {
-    msg.className = "msg err"; msg.textContent = "网络错误：" + e.message;
-  }
-}
+async function saveEntry(){const date=document.getElementById("edDate").value.trim();const content=document.getElementById("edContent").value.trim();const msg=document.getElementById("edMsg");if(!date||!content){msg.className="msg err";msg.textContent="请填写日期和内容";return}msg.className="msg";msg.textContent="保存中...";try{let sha=null;try{const r=await fetch("https://api.github.com/repos/"+REPO+"/contents/entries/"+date+".md",{headers:{Authorization:"Bearer "+ghToken,Accept:"application/vnd.github+json"}});if(r.ok){const d=await r.json();sha=d.sha}}catch(e){}const body={message:"日记 "+date,content:btoa(unescape(encodeURIComponent(content))),branch:"master"};if(sha)body.sha=sha;const resp=await fetch("https://api.github.com/repos/"+REPO+"/contents/entries/"+date+".md",{method:"PUT",headers:{Authorization:"Bearer "+ghToken,Accept:"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify(body)});if(resp.ok){msg.className="msg ok";msg.textContent="已保存，1分钟后生效"}else{const err=await resp.json();msg.className="msg err";msg.textContent="失败："+(err.message||"未知")}}catch(e){msg.className="msg err";msg.textContent="网络错误："+e.message}}
 </script>
 </body>
 </html>
