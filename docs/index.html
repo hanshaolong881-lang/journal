@@ -103,7 +103,7 @@ footer{margin-top:120px;padding-top:40px;border-top:1px solid #1a1a1a;color:#333
 
 <script>
 var HASH = "9b0d0a5be5681bdd2cc700ea65008fe2b8011c9fc41e81606706058fff0197d5";
-var TOKEN = "dx09GrJiI3a23GWGKU2bDoOBEZU50bJ1DKgRF3VvhpIJ0vnMbRR2geKwk+1a/Ws+sqNXC8rdYivR4vWVf/+XlSghMsc=";
+var TOKEN = "ojF0MVyjT8ZsInJV89P69Vxwn/L80HbupKSSGmJLkHT2WshiVFRwDlyN+RvYd/lvryevG6q1ecJsCPR99aDPuHPrKso=";
 var REPO = "hanshaolong881-lang/journal";
 var ENTRIES = [{"date": "2026-06-05", "content": "<h3>2026-06-05</h3>\n<p>\n今天开始写日记了。搭建了一个个人网站，用 GitHub Pages 托管，暗色极简风格。希望每天都能记录一点思考和感悟。\n</p>"}];
 var ghToken = null;
@@ -162,6 +162,40 @@ function toggleEntry(el){
   card.style.display = card.style.display === "block" ? "none" : "block";
 }
 
+async function reloadEntries(){
+  try{
+    var r = await fetch("https://api.github.com/repos/"+REPO+"/contents/entries/",{
+      headers:{"Authorization":"Bearer "+ghToken,Accept:"application/vnd.github+json"}
+    });
+    if(!r.ok) return;
+    var files = await r.json();
+    var newEntries = [];
+    for(var i=files.length-1;i>=0;i--){
+      var f = files[i];
+      if(!f.name.endsWith(".md")) continue;
+      var cr = await fetch(f.download_url);
+      var raw = await cr.text();
+      var date = f.name.replace(".md","");
+      // simple md to html
+      var html="";
+      var inP=false;
+      raw.split("\n").forEach(function(line){
+        line=line.trim();
+        if(!line){ if(inP){html+="</p>";inP=false;} return; }
+        if(line.startsWith("# ")){ html+="<h3>"+line.slice(2)+"</h3>"; return; }
+        if(line.startsWith("## ")){ html+="<h4>"+line.slice(3)+"</h4>"; return; }
+        if(!inP){ html+="<p>"; inP=true; }
+        html+=line+" ";
+      });
+      if(inP) html+="</p>";
+      newEntries.push({date:date,content:html});
+    }
+    ENTRIES = newEntries;
+    document.getElementById("entries").innerHTML = "";
+    render();
+  }catch(e){}
+}
+
 function startNew(){
   if(!ghToken){ alert("Token not loaded"); return; }
   document.getElementById("edDate").value = new Date().toISOString().slice(0,10);
@@ -198,8 +232,9 @@ async function saveEntry(){
       body:JSON.stringify(body)
     });
     if(resp.ok){
-      msg.className="ed-msg ok"; msg.textContent="Saved. Live in ~1 min.";
+      msg.className="ed-msg ok"; msg.textContent="Saved! Refreshing list...";
       cancelEdit();
+      setTimeout(function(){ reloadEntries(); }, 1000);
     }else{
       var err=await resp.json(); msg.className="ed-msg err"; msg.textContent="Error: "+(err.message||"unknown");
     }
