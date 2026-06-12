@@ -144,6 +144,7 @@ async function unlock(){
   document.getElementById("app").style.display = "block";
   if(!ghToken) document.getElementById("newBtn").style.display = "none";
   render();
+  if(ghToken) reloadEntries();
 }
 
 function render(){
