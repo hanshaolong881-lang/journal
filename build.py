@@ -3,7 +3,7 @@
 Supports multiple notes per day, separated by '---' in each file.
 Usage: python build.py <password> [github_token]
 """
-import sys, os, json, hashlib, glob, base64, subprocess
+import sys, os, json, hashlib, glob, base64, subprocess, re
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 PASSWORD = sys.argv[1] if len(sys.argv) > 1 else "tongshapai"
@@ -77,6 +77,15 @@ def md_to_html(raw_text):
 
 github_token = get_github_token()
 encrypted_token = encrypt_token(github_token) if github_token else ""
+
+if not encrypted_token:
+    try:
+        with open("docs/index.html", encoding="utf-8") as existing:
+            match = re.search(r'var TOKEN = "([^"]*)";', existing.read())
+            encrypted_token = match.group(1) if match else ""
+    except FileNotFoundError:
+        encrypted_token = ""
+
 password_hash = hashlib.sha256(PASSWORD.encode()).hexdigest()
 
 # Build entries — support multiple notes per day

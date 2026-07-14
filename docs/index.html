@@ -6,9 +6,21 @@
 <title>日省</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0a;color:#999;font-family:Georgia,"Noto Serif SC",serif;-webkit-font-smoothing:antialiased}
+body{
+  background:
+    linear-gradient(90deg,rgba(3,3,4,.82) 0%,rgba(7,7,8,.62) 44%,rgba(3,3,4,.88) 100%),
+    radial-gradient(circle at 26% 12%,rgba(201,168,76,.16),transparent 30%),
+    url("./assets/maybach-s680-4k.jpg") center center / cover fixed no-repeat,
+    #050505;
+  color:#b0a99a;
+  font-family:"LXGW WenKai Screen","Noto Serif SC","Source Han Serif SC","Songti SC",Georgia,serif;
+  font-size:17px;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  background-attachment:fixed;
+}
 
-#gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:24px;background:linear-gradient(180deg,#0a0a0a 0%,#0d0d0d 50%,#0a0a0a 100%)}
+#gate{display:flex;align-items:center;justify-content:center;min-height:100dvh;flex-direction:column;gap:24px;background:linear-gradient(180deg,rgba(5,5,5,.82) 0%,rgba(10,10,10,.66) 50%,rgba(5,5,5,.9) 100%)}
 #gate h2{font-size:48px;font-weight:400;color:#c9a84c;letter-spacing:16px;text-transform:uppercase}
 #gate .sub{font-size:12px;color:#554820;letter-spacing:8px;margin-bottom:32px}
 #gate input{background:#111;border:1px solid #222;color:#aaa;padding:16px 28px;font-size:14px;border-radius:4px;width:280px;outline:none;text-align:center;transition:border-color .3s}
@@ -17,56 +29,122 @@ body{background:#0a0a0a;color:#999;font-family:Georgia,"Noto Serif SC",serif;-we
 #gate button:hover{background:#c9a84c;color:#0a0a0a}
 #gate .err{color:#a04040;font-size:12px;display:none;letter-spacing:2px}
 
-#app{display:none;max-width:680px;margin:0 auto;padding:80px 24px 160px}
-header{padding-bottom:32px;margin-bottom:48px;border-bottom:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:flex-end}
+#app{display:none;max-width:820px;margin:0 auto;padding:86px 28px 160px}
+header{padding-bottom:34px;margin-bottom:32px;border-bottom:1px solid #211d14;display:flex;justify-content:space-between;align-items:flex-end}
 @media(max-width:640px){
   #gate h2{font-size:36px;letter-spacing:8px}
   #gate input{width:240px;padding:14px 20px}
   #gate button{padding:12px 36px}
   #app{padding:48px 20px 120px}
   header{flex-direction:column;align-items:flex-start;gap:16px}
-  h1{font-size:24px}
+  h1{font-size:30px}
+  .filters{grid-template-columns:1fr}
+  .filter-actions{justify-content:flex-start}
   .entry::before{left:-16px}
   .entry-card{padding:24px}
-  .note-card{padding:20px}
+  .note-card{padding:24px}
 }
-h1{font-size:28px;font-weight:400;color:#c9a84c;letter-spacing:12px}
-header p{color:#443;font-size:11px;letter-spacing:4px;text-transform:uppercase}
+h1{font-size:38px;font-weight:500;color:#d8b85f;letter-spacing:14px;text-shadow:0 0 24px rgba(201,168,76,.12)}
+header p{color:#5f5131;font-size:12px;letter-spacing:4px;text-transform:uppercase}
 #newBtn{background:transparent;color:#665522;border:1px solid #222;padding:8px 22px;font-size:11px;letter-spacing:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all .3s}
 #newBtn:hover{color:#c9a84c;border-color:#c9a84c}
 
-.entries{display:flex;flex-direction:column;gap:64px}
+.filters{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr auto;
+  gap:12px;
+  align-items:end;
+  margin:0 0 54px;
+  padding:18px;
+  border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.035));
+  box-shadow:0 24px 70px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(22px) saturate(145%);
+  -webkit-backdrop-filter:blur(22px) saturate(145%);
+}
+.filters label{display:grid;gap:8px;color:#7b6a3c;font-size:11px;letter-spacing:3px;text-transform:uppercase}
+.filters input{
+  min-height:42px;
+  width:100%;
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:2px;
+  padding:0 12px;
+  color:#d2c8af;
+  background:rgba(0,0,0,.22);
+  font:inherit;
+  font-size:14px;
+  outline:none;
+}
+.filters input:focus{border-color:#c9a84c;box-shadow:0 0 0 3px rgba(201,168,76,.08)}
+.filter-actions{display:flex;gap:8px}
+.filter-actions button{
+  min-height:42px;
+  padding:0 16px;
+  border:1px solid rgba(255,255,255,.10);
+  color:#b99f56;
+  background:rgba(255,255,255,.035);
+  cursor:pointer;
+  font-family:inherit;
+  font-size:12px;
+  letter-spacing:2px;
+  transition:all .25s;
+}
+.filter-actions button:hover{border-color:#c9a84c;color:#d8b85f}
+.filter-summary{grid-column:1/-1;color:#5d5133;font-size:12px;letter-spacing:1px;line-height:1.6}
+.entries{display:flex;flex-direction:column;gap:72px}
 
 .entry{position:relative}
-.entry::before{content:"";position:absolute;left:-24px;top:4px;width:1px;height:20px;background:#c9a84c;opacity:.3}
-.entry-date{font-size:12px;color:#554420;letter-spacing:4px;margin-bottom:0;font-family:monospace;cursor:pointer;transition:color .3s;user-select:none;display:flex;align-items:center;gap:10px}
+.entry::before{content:"";position:absolute;left:-24px;top:4px;width:1px;height:28px;background:#c9a84c;opacity:.42}
+.entry-date{font-size:15px;color:#786532;letter-spacing:4px;margin-bottom:0;font-family:"Cascadia Mono","SFMono-Regular",monospace;cursor:pointer;transition:color .3s;user-select:none;display:flex;align-items:center;gap:10px}
 .entry-date:hover{color:#c9a84c}
-.entry-date .arrow{display:inline-block;transition:transform .3s;font-size:9px;color:#c9a84c;opacity:.5}
+.entry-date .arrow{display:inline-block;transition:transform .3s;font-size:11px;color:#c9a84c;opacity:.58}
 .entry-date.open .arrow{transform:rotate(90deg)}
-.entry-date .count{font-size:10px;color:#443;letter-spacing:1px}
+.entry-date .count{font-size:12px;color:#574b31;letter-spacing:1px}
 
-.notes-wrap{display:none;margin-top:16px;flex-direction:column;gap:16px}
+.notes-wrap{display:none;margin-top:20px;flex-direction:column;gap:18px}
 .notes-wrap.open{display:flex}
 
-.note-card{background:#0d0d0d;border:1px solid #161616;padding:28px 36px;position:relative}
-.note-card::after{content:"";position:absolute;top:0;right:0;width:40px;height:1px;background:#c9a84c;opacity:.3}
-.note-card .note-title{color:#c9a84c;font-size:13px;font-weight:400;letter-spacing:2px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #1a1a1a}
-.note-content{font-size:15px;line-height:2.2;color:#888}
-.note-content p{margin-bottom:24px}
+.note-card{
+  overflow:hidden;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.035)),
+    linear-gradient(180deg,rgba(201,168,76,.055),rgba(84,116,160,.035));
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  padding:38px 46px;
+  position:relative;
+  box-shadow:0 22px 70px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.10), inset 0 -1px 0 rgba(255,255,255,.035);
+  backdrop-filter:blur(28px) saturate(160%);
+  -webkit-backdrop-filter:blur(28px) saturate(160%);
+}
+.note-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.16),transparent 28%,transparent 72%,rgba(201,168,76,.06));
+  opacity:.72;
+}
+.note-card::after{content:"";position:absolute;top:0;right:0;width:92px;height:1px;background:rgba(255,255,255,.42);opacity:.72}
+.note-card > *{position:relative;z-index:1}
+.note-card .note-title{color:#d8b85f;font-size:18px;font-weight:500;letter-spacing:2px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #241f15}
+.note-content{font-size:18px;line-height:2.08;color:#b6ad9a;letter-spacing:.2px}
+.note-content p{margin-bottom:26px}
 .note-content p:last-child{margin-bottom:0}
-.note-content h3{color:#c9a84c;font-size:17px;font-weight:400;margin-bottom:16px;letter-spacing:2px}
-.note-content h4{color:#998;font-size:14px;font-weight:400;margin-bottom:12px}
-.note-content ul{margin-bottom:16px;padding-left:20px}
-.note-content li{line-height:2;color:#777}
+.note-content h3{color:#d8b85f;font-size:23px;font-weight:500;margin-bottom:18px;letter-spacing:2px}
+.note-content h4{color:#b8aa80;font-size:19px;font-weight:500;margin-bottom:14px}
+.note-content ul{margin-bottom:20px;padding-left:24px}
+.note-content li{line-height:2;color:#a79d8a;margin-bottom:6px}
+.empty-state{padding:48px 20px;border:1px dashed rgba(255,255,255,.13);border-radius:18px;color:#8b7844;text-align:center;letter-spacing:3px;font-size:13px;background:rgba(255,255,255,.035);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 
 footer{margin-top:120px;padding-top:40px;border-top:1px solid #1a1a1a;color:#333;font-size:10px;letter-spacing:3px;text-align:right}
 
 #editor{display:none;margin-bottom:48px}
-.ed-card{background:#0d0d0d;border:1px solid #161616;padding:28px}
+.ed-card{background:linear-gradient(145deg,rgba(255,255,255,.095),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:30px;box-shadow:0 22px 70px rgba(0,0,0,.32);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%)}
 .ed-card label{display:block;color:#666;font-size:11px;letter-spacing:2px;margin-bottom:6px;text-transform:uppercase}
-.ed-card input{background:#111;border:1px solid #222;color:#aaa;padding:10px 16px;font-size:12px;width:100%;outline:none;font-family:inherit;margin-bottom:12px;transition:border-color .3s}
+.ed-card input{background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.10);color:#aaa;padding:10px 16px;font-size:12px;width:100%;outline:none;font-family:inherit;margin-bottom:12px;transition:border-color .3s}
 .ed-card input:focus{border-color:#c9a84c}
-.ed-card textarea{width:100%;min-height:200px;background:#111;border:1px solid #222;color:#999;padding:16px;font-size:14px;margin:12px 0;outline:none;resize:vertical;line-height:2;font-family:inherit}
+.ed-card textarea{width:100%;min-height:200px;background:rgba(0,0,0,.24);border:1px solid rgba(255,255,255,.10);color:#999;padding:16px;font-size:14px;margin:12px 0;outline:none;resize:vertical;line-height:2;font-family:inherit}
 .ed-card textarea:focus{border-color:#c9a84c}
 .ed-btns{display:flex;gap:10px}
 .ed-btns button{padding:10px 28px;font-size:12px;letter-spacing:3px;cursor:pointer;font-family:inherit;text-transform:uppercase;transition:all .3s}
@@ -94,6 +172,22 @@ footer{margin-top:120px;padding-top:40px;border-top:1px solid #1a1a1a;color:#333
     <div><h1>日省</h1><p>Daily Reflection</p></div>
     <button id="newBtn" onclick="startNew()">+ Write</button>
   </header>
+  <section class="filters" aria-label="Date filters">
+    <label>From
+      <input type="date" id="fromDate" onchange="render()">
+    </label>
+    <label>To
+      <input type="date" id="toDate" onchange="render()">
+    </label>
+    <label>Month
+      <input type="month" id="monthFilter" onchange="setMonthFilter(this.value)">
+    </label>
+    <div class="filter-actions">
+      <button type="button" onclick="showAllEntries()">ALL</button>
+      <button type="button" onclick="showLatestMonth()">LATEST</button>
+    </div>
+    <div class="filter-summary" id="filterSummary"></div>
+  </section>
   <div class="entries" id="entries"></div>
 
   <div id="editor">
@@ -116,10 +210,57 @@ footer{margin-top:120px;padding-top:40px;border-top:1px solid #1a1a1a;color:#333
 
 <script>
 var HASH = "9b0d0a5be5681bdd2cc700ea65008fe2b8011c9fc41e81606706058fff0197d5";
-var TOKEN = "WQYxAdmhBO3yILG6PfFh5/AKV7j8lj4YubbXm9RJjsmdCjANQvAoSV8pFndLBJdOWyHMofi2YOXRWComkfKnkxn7tYs=";
+var TOKEN = "h7nNi9gt0zB3GbCsJz5/r6cQWhyA68VYV5P6JbXR/C0ZIjlpC+xmVafdGOIDaCbiudtw0pS6jn0v9nsEjhVDwne4ua4=";
 var REPO = "hanshaolong881-lang/journal";
 var ENTRIES = [{"date": "2026-06-30", "notes": [{"title": "变强的特征", "content": "<p>\n变强的三个特征：自信，主动，不摆烂。现在才二十几岁的年纪，累一点没什么大不了的，多干一点也没什么大不了。偷过的懒到时候都要以另一种方式回来。人生是很长的。所以不要害怕干活。\n</p>\n<p>\n保持高精力的秘诀：戒色，这个太重要了。还有早睡。一个好的身体比任何事情都重要。多跟她聊一些女生感兴趣的话题，除此之外不要闲聊。特别是一些负能量的事情。要保持积极阳光的形象。\n</p>"}, {"title": "为自己的认知负责", "content": "<p>\n为自己的认知负责。带杠杆的etf每天都会有磨损，所以不适合长线，如果早知道有这个逻辑就不会一直耗着不走。\n</p>"}]}, {"date": "2026-06-26", "notes": [{"title": "", "content": "<p>\n最近股市回调了太多。。。心情特别糟糕。总结了以下几点缺点\n</p>\n<p>\n1,没有上涨行情的时候不要抱有幻想，不追高。可以短线做空，但是做空只能玩短线，不过夜\n</p>\n<p>\n2，每一笔交易必须要有理由,！！！一定要有止损！！！没有合适的入场时机千万不能交易，宁愿空仓。也不赌博。\n</p>\n<p>\n3，震荡行情中每一次下跌都是计划，每一次上涨也有做空的机会。\n</p>\n<p>\n4，杠杆做多和做空不能全仓，一定不能全仓。\n</p>\n<p>\n有两本书可以试着看一下，红盘夺金和银盘归流。\n</p>\n<p>\n还有一点对于职场的思考。心态有些问题，太摆烂了，一直都在幻想不干活还拿高工资，这是觉得不可能的。不管是做运营还是做投放。要让领导看到积极性。不要害怕干活！不要抗拒工作！情绪要稳定。没有人会喜欢一个每天啥也不干的人。\n</p>"}]}, {"date": "2026-06-16", "notes": [{"title": "", "content": "<p>\n中国ai科技一部落后步步落后，美国ai高速发展但是现在落地盈利较少。中国会不会发展其他产业来进行对抗。实体行业或者大基建？还是会在ai科技上面追赶。按照国人逻辑，应该会等他们创新后，吸收他们经验。来复制或者抄袭。\n</p>"}]}, {"date": "2026-06-12", "notes": [{"title": "", "content": "<p>\n上天给了我中上的相貌，中上的智商，中上的性格。就是希望我可以通过努力来获得自己想要的。所有的事情，通过努努力都可以做到中上。不要浪费了。\n</p>"}]}, {"date": "2026-06-09", "notes": [{"title": "", "content": "<p>\n06/10 交易规则 系统养成 盘中找机会再进入 没有合适买入机会不追高 宁愿空仓也不动 第二天找高位卖出。\n</p>"}]}, {"date": "2026-06-05", "notes": [{"title": "", "content": "<h3>2026-06-05</h3>\n<p>\n今天开始写日记了。搭建了一个个人网站，用 GitHub Pages 托管，暗色极简风格。希望每天都能记录一点思考和感悟。\n</p>"}]}];
 var ghToken = null;
+
+function getVisibleEntries(){
+  var from = document.getElementById("fromDate")?.value || "";
+  var to = document.getElementById("toDate")?.value || "";
+  return ENTRIES.filter(function(e){
+    if(from && e.date < from) return false;
+    if(to && e.date > to) return false;
+    return true;
+  });
+}
+
+function updateFilterSummary(list){
+  var summary = document.getElementById("filterSummary");
+  if(!summary) return;
+  var notes = list.reduce(function(sum,e){ return sum + ((e.notes || []).length || 0); }, 0);
+  var from = document.getElementById("fromDate")?.value || "";
+  var to = document.getElementById("toDate")?.value || "";
+  var range = from || to ? (from || "earliest") + " → " + (to || "latest") : "all time";
+  summary.textContent = list.length + " days · " + notes + " notes · " + range;
+}
+
+function setMonthFilter(value){
+  if(!value){
+    render();
+    return;
+  }
+  document.getElementById("fromDate").value = value + "-01";
+  var end = new Date(value + "-01T00:00:00");
+  end.setMonth(end.getMonth() + 1);
+  end.setDate(0);
+  document.getElementById("toDate").value = end.toISOString().slice(0,10);
+  render();
+}
+
+function showAllEntries(){
+  document.getElementById("fromDate").value = "";
+  document.getElementById("toDate").value = "";
+  document.getElementById("monthFilter").value = "";
+  render();
+}
+
+function showLatestMonth(){
+  if(!ENTRIES.length) return;
+  var latest = ENTRIES[0].date.slice(0,7);
+  document.getElementById("monthFilter").value = latest;
+  setMonthFilter(latest);
+}
 
 async function sha256(t){
   var b = new TextEncoder().encode(t);
@@ -162,7 +303,13 @@ async function unlock(){
 function render(){
   var c = document.getElementById("entries");
   c.innerHTML = "";
-  ENTRIES.forEach(function(e){
+  var visibleEntries = getVisibleEntries();
+  updateFilterSummary(visibleEntries);
+  if(!visibleEntries.length){
+    c.innerHTML = '<div class="empty-state">NO ENTRIES IN THIS RANGE</div>';
+    return;
+  }
+  visibleEntries.forEach(function(e){
     var d = document.createElement("div");
     d.className = "entry";
     
