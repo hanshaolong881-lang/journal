@@ -215,6 +215,13 @@ var REPO = "hanshaolong881-lang/journal";
 var ENTRIES = ENTRIES_PLACEHOLDER;
 var ghToken = null;
 
+function githubHeaders(includeContentType){
+  var headers = {Accept:"application/vnd.github+json"};
+  if(ghToken) headers.Authorization = "Bearer " + ghToken;
+  if(includeContentType) headers["Content-Type"] = "application/json";
+  return headers;
+}
+
 function getVisibleEntries(){
   var from = document.getElementById("fromDate")?.value || "";
   var to = document.getElementById("toDate")?.value || "";
@@ -298,6 +305,7 @@ async function unlock(){
   document.getElementById("app").style.display = "block";
   if(!ghToken) document.getElementById("newBtn").style.display = "none";
   render();
+  await reloadEntries();
 }
 
 function render(){
@@ -347,7 +355,7 @@ function openFirstEntry(){
 async function reloadEntries(){
   try{
     var r = await fetch("https://api.github.com/repos/"+REPO+"/contents/entries/",{
-      headers:{"Authorization":"Bearer "+ghToken,Accept:"application/vnd.github+json"}
+      headers:githubHeaders()
     });
     if(!r.ok) return;
     var files = await r.json();
@@ -460,7 +468,7 @@ async function saveEntry(){
     var existingContent = "";
     try{
       var r = await fetch("https://api.github.com/repos/"+REPO+"/contents/entries/"+date+".md",{
-        headers:{"Authorization":"Bearer "+ghToken,Accept:"application/vnd.github+json"}
+        headers:githubHeaders()
       });
       if(r.ok){
         var d = await r.json();
@@ -491,15 +499,15 @@ async function saveEntry(){
     
     var resp = await fetch("https://api.github.com/repos/"+REPO+"/contents/entries/"+date+".md",{
       method:"PUT",
-      headers:{"Authorization":"Bearer "+ghToken,Accept:"application/vnd.github+json","Content-Type":"application/json"},
+      headers:githubHeaders(true),
       body:JSON.stringify(body)
     });
     
     if(resp.ok){
       var action = sha ? "Appended" : "Saved";
       msg.className="ed-msg ok"; msg.textContent = action + "! Refreshing...";
+      await reloadEntries();
       cancelEdit();
-      setTimeout(function(){ reloadEntries(); }, 1500);
     }else{
       var err = await resp.json();
       msg.className="ed-msg err"; msg.textContent = "Error: "+(err.message||"unknown");
