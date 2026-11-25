@@ -1,136 +1,224 @@
 #!/usr/bin/env python
-"""Build the journal site from markdown entries.
-Supports multiple notes per day, separated by '---' in each file.
-Usage: python build.py <password> [github_token]
+"""Build the 日省 (Daily Reflection) static journal site from markdown entries.
+
+Supports multiple notes per day separated by '---' lines.
+Usage: python build.py [password] [github_token]
 """
-import sys, os, json, hashlib, glob, base64, subprocess, re
+from __future__ import annotations
+
+import base64
+import glob
+import hashlib
+import html as html_lib
+import json
+import os
+import re
+import subprocess
+import sys
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(BASE_DIR)
 
 PASSWORD = sys.argv[1] if len(sys.argv) > 1 else "tongshapai"
 REPO = "hanshaolong881-lang/journal"
 
-# Derive AES key from password
-key = hashlib.sha256(("journal-key:" + PASSWORD).encode()).digest()
+# Derive 256-bit AES-GCM key from password
+KEY = hashlib.sha256(("journal-key:" + PASSWORD).encode("utf-8")).digest()
 
-def get_github_token():
-    """Get token from argv, env, or git credential manager."""
-    if len(sys.argv) > 2:
-        return sys.argv[2]
-    token = os.environ.get("GITHUB_TOKEN", "")
+
+def get_github_token() -> str:
+    if len(sys.argv) > 2 and sys.argv[2].strip():
+        return sys.argv[2].strip()
+    token = os.environ.get("GITHUB_TOKEN", "").strip()
     if token:
         return token
     try:
         result = subprocess.run(
             ["git", "credential", "fill"],
             input="protocol=https\nhost=github.com\n\n",
-            capture_output=True, text=True, timeout=5
+            capture_output=True,
+            text=True,
+            timeout=5,
         )
-        for line in result.stdout.strip().split("\n"):
+        for line in result.stdout.strip().splitlines():
             if line.startswith("password="):
-                return line.split("=", 1)[1]
-    except:
+                return line.split("=", 1)[1].strip()
+    except Exception:
         pass
     return ""
 
-def encrypt_token(token):
-    """Encrypt GitHub token with AES-GCM."""
-    aesgcm = AESGCM(key)
+
+def encrypt_token(token: str) -> str:
+    aesgcm = AESGCM(KEY)
     nonce = os.urandom(12)
-    ct = aesgcm.encrypt(nonce, token.encode(), None)
-    return base64.b64encode(nonce + ct).decode()
+    ct = aesgcm.encrypt(nonce, token.encode("utf-8"), None)
+    return base64.b64encode(nonce + ct).decode("ascii")
 
-def md_to_html(raw_text):
-    """Convert markdown text to HTML (single note block)."""
-    html_parts = []
-    for line in raw_text.strip().split("\n"):
-        line = line.strip()
+
+def inline_md(escaped_text: str) -> str:
+    text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", escaped_text)
+    text = re.sub(r"`([^`]+)`", r"<code>\1</code>", text)
+    return text
+
+
+def md_to_html(raw_text: str) -> str:
+    """Safe, consistent Markdown -> HTML converter matching client-side renderMarkdown()."""
+    parts: list[str] = []
+    para_lines: list[str] = []
+    in_ul = False
+    in_ol = False
+    in_quote = False
+
+    def flush_para() -> None:
+        if para_lines:
+            parts.append("<p>" + "<br>".join(para_lines) + "</p>")
+            para_lines.clear()
+
+    def close_lists() -> None:
+        nonlocal in_ul, in_ol, in_quote
+        flush_para()
+        if in_ul:
+            parts.append("</ul>")
+            in_ul = False
+        if in_ol:
+            parts.append("</ol>")
+            in_ol = False
+        if in_quote:
+            parts.append("</blockquote>")
+            in_quote = False
+
+    for raw_line in raw_text.strip().splitlines():
+        line = raw_line.strip()
         if not line:
-            if html_parts and not html_parts[-1].endswith("</p>"):
-                html_parts.append("</p>")
+            close_lists()
             continue
+
+        escaped = inline_md(html_lib.escape(line, quote=False))
+
         if line.startswith("# "):
-            html_parts.append("<h3>" + line[2:] + "</h3>")
+            close_lists()
+            parts.append(f"<h3>{inline_md(html_lib.escape(line[2:].strip(), quote=False))}</h3>")
         elif line.startswith("## "):
-            html_parts.append("<h4>" + line[3:] + "</h4>")
-        elif line.startswith("- "):
-            if html_parts and html_parts[-1] == "</ul>":
-                html_parts.pop()
-            else:
-                html_parts.append("<ul>")
-            html_parts.append("<li>" + line[2:] + "</li>")
-            html_parts.append("</ul>")
+            close_lists()
+            parts.append(f"<h4>{inline_md(html_lib.escape(line[3:].strip(), quote=False))}</h4>")
+        elif line.startswith("> "):
+            flush_para()
+            if in_ul:
+                parts.append("</ul>")
+                in_ul = False
+            if in_ol:
+                parts.append("</ol>")
+                in_ol = False
+            if not in_quote:
+                parts.append("<blockquote>")
+                in_quote = True
+            parts.append(f"<p>{inline_md(html_lib.escape(line[2:].strip(), quote=False))}</p>")
+        elif line.startswith("- ") or line.startswith("* "):
+            flush_para()
+            if in_ol:
+                parts.append("</ol>")
+                in_ol = False
+            if in_quote:
+                parts.append("</blockquote>")
+                in_quote = False
+            if not in_ul:
+                parts.append("<ul>")
+                in_ul = True
+            parts.append(f"<li>{inline_md(html_lib.escape(line[2:].strip(), quote=False))}</li>")
         else:
-            need_open = (
-                not html_parts
-                or html_parts[-1].endswith("</ul>")
-                or html_parts[-1].endswith("</h3>")
-                or html_parts[-1].endswith("</h4>")
-                or html_parts[-1].endswith("</p>")
-            )
-            if need_open:
-                html_parts.append("<p>")
-            elif not html_parts[-1].startswith("<"):
-                html_parts.append("<p>")
-            html_parts.append(line)
-            html_parts.append("</p>")
-    return "\n".join(html_parts)
-
-github_token = get_github_token()
-encrypted_token = encrypt_token(github_token) if github_token else ""
-
-if not encrypted_token:
-    try:
-        with open("docs/index.html", encoding="utf-8") as existing:
-            match = re.search(r'var TOKEN = "([^"]*)";', existing.read())
-            encrypted_token = match.group(1) if match else ""
-    except FileNotFoundError:
-        encrypted_token = ""
-
-password_hash = hashlib.sha256(PASSWORD.encode()).hexdigest()
-
-# Build entries — support multiple notes per day
-entries = []
-for f in sorted(glob.glob("entries/*.md"), reverse=True):
-    date_str = os.path.splitext(os.path.basename(f))[0]
-    with open(f, encoding="utf-8") as fp:
-        raw = fp.read().strip()
-    
-    # Split by '---' to get multiple notes per day
-    notes = [n.strip() for n in raw.split("\n---\n") if n.strip()]
-    
-    if len(notes) == 1:
-        # Single note — same as before
-        content_html = md_to_html(notes[0])
-        entries.append({"date": date_str, "notes": [{"title": "", "content": content_html}]})
-    else:
-        # Multiple notes — each gets a title from the first # line
-        note_list = []
-        for note in notes:
-            lines = note.split("\n")
-            title = ""
-            body_lines = []
-            if lines and lines[0].startswith("# "):
-                title = lines[0][2:]
-                body_lines = lines[1:]
+            ol_match = re.match(r"^(\d+)[\.\、]\s*(.+)$", line)
+            if ol_match:
+                flush_para()
+                if in_ul:
+                    parts.append("</ul>")
+                    in_ul = False
+                if in_quote:
+                    parts.append("</blockquote>")
+                    in_quote = False
+                if not in_ol:
+                    parts.append("<ol>")
+                    in_ol = True
+                parts.append(f"<li>{inline_md(html_lib.escape(ol_match.group(2).strip(), quote=False))}</li>")
             else:
-                body_lines = lines
-            body = "\n".join(body_lines).strip()
-            content_html = md_to_html(body) if body else md_to_html(note)
-            note_list.append({"title": title, "content": content_html})
-        entries.append({"date": date_str, "notes": note_list})
+                if in_ul or in_ol or in_quote:
+                    close_lists()
+                para_lines.append(escaped)
 
-with open("template.html", encoding="utf-8") as f:
-    html = f.read()
+    close_lists()
+    return "\n".join(parts)
 
-html = html.replace("HASH_PLACEHOLD...", password_hash)
-html = html.replace("ENTRIES_PLACEHOLDER", json.dumps(entries, ensure_ascii=False))
-html = html.replace("TOKEN_PLACEHO...", encrypted_token)
-html = html.replace("{{REPO}}", REPO)
 
-os.makedirs("docs", exist_ok=True)
-with open("docs/index.html", "w", encoding="utf-8") as f:
-    f.write(html)
+def parse_entry_file(raw: str) -> list[dict[str, str]]:
+    blocks = [b.strip() for b in re.split(r"\n\s*---\s*\n", raw.strip()) if b.strip()]
+    note_list: list[dict[str, str]] = []
+    for idx, block in enumerate(blocks):
+        lines = block.splitlines()
+        title = ""
+        body_lines = lines
+        if len(blocks) > 1 and lines and lines[0].strip().startswith("# "):
+            title = lines[0].strip()[2:].strip()
+            body_lines = lines[1:]
+        elif len(blocks) == 1 and lines and lines[0].strip().startswith("# "):
+            # Extract leading # heading as card title if there is body text beneath it
+            candidate_body = "\n".join(lines[1:]).strip()
+            if candidate_body:
+                title = lines[0].strip()[2:].strip()
+                body_lines = lines[1:]
+        body = "\n".join(body_lines).strip()
+        raw_body = body if body else block
+        # Deduplicate accidental consecutive identical notes on the same day
+        if note_list and note_list[-1]["title"] == title and note_list[-1]["raw"] == raw_body:
+            continue
+        note_list.append(
+            {
+                "title": title,
+                "raw": raw_body,
+                "content": md_to_html(raw_body),
+            }
+        )
+    return note_list
 
-print("Built " + str(len(entries)) + " days -> docs/index.html")
-print("Password: " + PASSWORD)
-print("Token embedded: " + ("YES" if encrypted_token else "NO"))
+
+def main() -> None:
+    github_token = get_github_token()
+    encrypted_token = encrypt_token(github_token) if github_token else ""
+
+    if not encrypted_token and os.path.exists("docs/index.html"):
+        with open("docs/index.html", encoding="utf-8") as existing:
+            match = re.search(r'var\s+TOKEN\s*=\s*"([^"]*)";', existing.read())
+            if match:
+                encrypted_token = match.group(1)
+
+    password_hash = hashlib.sha256(PASSWORD.encode("utf-8")).hexdigest()
+
+    entries = []
+    for path in sorted(glob.glob("entries/*.md"), reverse=True):
+        date_str = os.path.splitext(os.path.basename(path))[0]
+        with open(path, encoding="utf-8") as fp:
+            raw = fp.read().strip()
+        if not raw:
+            continue
+        notes = parse_entry_file(raw)
+        if notes:
+            entries.append({"date": date_str, "notes": notes})
+
+    with open("template.html", encoding="utf-8") as f:
+        html = f.read()
+
+    html = html.replace("HASH_PLACEHOLD...", password_hash)
+    html = html.replace("ENTRIES_PLACEHOLDER", json.dumps(entries, ensure_ascii=False, separators=(",", ":")))
+    html = html.replace("TOKEN_PLACEHO...", encrypted_token)
+    html = html.replace("{{REPO}}", REPO)
+
+    os.makedirs("docs", exist_ok=True)
+    with open("docs/index.html", "w", encoding="utf-8", newline="\n") as f:
+        f.write(html)
+
+    total_notes = sum(len(e["notes"]) for e in entries)
+    print(f"Built {len(entries)} days ({total_notes} notes) -> docs/index.html")
+    print(f"Token embedded: {'YES' if encrypted_token else 'NO'}")
+
+
+if __name__ == "__main__":
+    main()
